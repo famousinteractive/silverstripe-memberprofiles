@@ -776,7 +776,6 @@ class MemberProfilePage_Controller extends Page_Controller {
 
         if($this->EmailType == 'ValidationUnder16' && time() < $min) {
             $member->NeedsValidation = true;
-            var_dump('need vad');
         }
 
 		$member->NeedsApproval   = $this->RequireApproval;
@@ -794,33 +793,36 @@ class MemberProfilePage_Controller extends Page_Controller {
 		// If we require admin approval, send an email to the admin and delay
 		// sending an email to the member.
 		if ($this->RequireApproval) {
-			$groups = $this->ApprovalGroups();
-			$emails = array();
+            $groups = $this->ApprovalGroups();
+            $emails = array();
 
-			if ($groups) foreach ($groups as $group) {
-				foreach ($group->Members() as $_member) {
-					if ($member->Email) $emails[] = $_member->Email;
-				}
-			}
+            if ($groups) foreach ($groups as $group) {
+                foreach ($group->Members() as $_member) {
+                    if ($member->Email) $emails[] = $_member->Email;
+                }
+            }
 
-			if ($emails) {
-				$email   = new Email();
-				$config  = SiteConfig::current_site_config();
-				$approve = Controller::join_links(
-					Director::baseURL(), 'member-approval', $member->ID, '?token=' . $member->ValidationKey
-				);
+            if ($emails) {
+                $email = new Email();
+                $config = SiteConfig::current_site_config();
+                $approve = Controller::join_links(
+                    Director::baseURL(), 'member-approval', $member->ID, '?token=' . $member->ValidationKey
+                );
 
-				$email->setSubject("Registration Approval Requested for $config->Title");
-				$email->setBcc(implode(',', array_unique($emails)));
-				$email->setTemplate('MemberRequiresApprovalEmail');
-				$email->populateTemplate(array(
-					'SiteConfig'  => $config,
-					'Member'      => $member,
-					'ApproveLink' => Director::absoluteURL($approve)
-				));
+                $email->setSubject("Registration Approval Requested for $config->Title");
+                $email->setBcc(implode(',', array_unique($emails)));
+                $email->setTemplate('MemberRequiresApprovalEmail');
+                $email->populateTemplate(array(
+                    'SiteConfig' => $config,
+                    'Member' => $member,
+                    'ApproveLink' => Director::absoluteURL($approve)
+                ));
 
-				$email->send();
-			}
+                $email->send();
+            }
+        } elseif($this->EmailType == 'ValidationUnder16') {
+            $email = MemberConfirmationEmail::create($this, $member, $member->ParentEmail);
+            $email->send();
 		} elseif($this->EmailType != 'None') {
 			$email = MemberConfirmationEmail::create($this, $member);
 			$email->send();
