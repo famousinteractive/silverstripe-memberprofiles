@@ -26,7 +26,7 @@ class MemberProfilePage extends Page implements PermissionProvider {
 		'AllowAdding'              => 'Boolean',
 		'RegistrationRedirect'     => 'Boolean',
 		'RequireApproval'          => 'Boolean',
-		'EmailType'                => 'Enum("Validation, Confirmation, None", "None")',
+		'EmailType'                => 'Enum("Validation, ValidationUnder16, Confirmation, None", "None")',
 		'EmailFrom'                => 'Varchar(255)',
 		'EmailSubject'             => 'Varchar(255)',
 		'EmailTemplate'            => 'Text',
@@ -88,7 +88,7 @@ class MemberProfilePage extends Page implements PermissionProvider {
 		'Password' => array(
 			'RegistrationVisibility' => 'Edit',
 			'ProfileVisibility'      => 'Edit'
-		)
+		),
 	);
 
 	private static $description = '';
@@ -230,6 +230,7 @@ class MemberProfilePage extends Page implements PermissionProvider {
 				_t('MemberProfiles.EMAILSETTINGS', 'Email Settings'),
 				array(
 					'Validation'   => _t('MemberProfiles.EMAILVALIDATION', 'Require email validation'),
+					'ValidationUnder16'   => _t('MemberProfiles.ValidationUnder16', 'Require email validation when user is < 16'),
 					'Confirmation' => _t('MemberProfiles.EMAILCONFIRMATION', 'Send a confirmation email'),
 					'None'         => _t('MemberProfiles.NONE', 'None')
 				)
@@ -512,7 +513,7 @@ class MemberProfilePage_Controller extends Page_Controller {
 	 */
 	public function register($data, Form $form) {
 		if($member = $this->addMember($form)) {
-			if(!$this->RequireApproval && $this->EmailType != 'Validation' && !$this->AllowAdding) {
+			if(!$this->RequireApproval && $this->EmailType != 'Validation' && $this->EmailType != 'ValidationUnder16' && !$this->AllowAdding) {
 				$member->logIn();
 			}
 
@@ -729,7 +730,7 @@ class MemberProfilePage_Controller extends Page_Controller {
 		}
 
 		if (
-			$this->EmailType != 'Validation'
+			$this->EmailType != 'Validation' || $this->EmailType != 'ValidationUnder16'
 			|| (!$id = $request->param('ID')) || (!$key = $request->getVar('key')) || !is_numeric($id)
 			|| !$member = DataObject::get_by_id('Member', $id)
 		) {
@@ -768,6 +769,16 @@ class MemberProfilePage_Controller extends Page_Controller {
 
 		$member->ProfilePageID   = $this->ID;
 		$member->NeedsValidation = ($this->EmailType == 'Validation');
+
+
+        $birthDate = strtotime($member->DateOfBirth);
+        $min = strtotime('+16 years',$birthDate);
+
+        if($this->EmailType == 'ValidationUnder16' && time() < $min) {
+            $member->NeedsValidation = true;
+            var_dump('need vad');
+        }
+
 		$member->NeedsApproval   = $this->RequireApproval;
 
 		try {
