@@ -103,10 +103,11 @@ class MemberConfirmationEmail extends Email {
 	/**
 	 * @param MemberProfilePage $page
 	 * @param Member $member
+     * @param String|null $overrideTo
 	 */
-	public function __construct($page, $member) {
+	public function __construct($page, $member, $overrideTo = null) {
 		$from    = $page->EmailFrom ? $page->EmailFrom : Email::getAdminEmail();
-		$to      = $member->Email;
+		$to      = is_null($overrideTo) ? $member->Email : $overrideTo;
 		$subject = self::get_parsed_string($page->EmailSubject, $member, $page);
 		$body    = self::get_parsed_string($page->EmailTemplate, $member, $page);
 
