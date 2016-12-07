@@ -734,9 +734,9 @@ class MemberProfilePage_Controller extends Page_Controller {
 				'You cannot confirm account while you are logged in.'
 			));
 		}
-
+        
 		if (
-			$this->EmailType != 'Validation' || $this->EmailType != 'ValidationUnder16'
+            ($this->EmailType != 'Validation' && $this->EmailType != 'ValidationUnder16')
 			|| (!$id = $request->param('ID')) || (!$key = $request->getVar('key')) || !is_numeric($id)
 			|| !$member = DataObject::get_by_id('Member', $id)
 		) {
