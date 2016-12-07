@@ -513,9 +513,15 @@ class MemberProfilePage_Controller extends Page_Controller {
 	 */
 	public function register($data, Form $form) {
 		if($member = $this->addMember($form)) {
+
+            $birthDate = strtotime($data['DateOfBirth']);
+            $min = strtotime('+16 years',$birthDate);
+
 			if(!$this->RequireApproval && $this->EmailType != 'Validation' && $this->EmailType != 'ValidationUnder16' && !$this->AllowAdding) {
 				$member->logIn();
-			}
+			} elseif($this->EmailType == 'ValidationUnder16' && time() >= $min) {
+                		$member->logIn();
+            		}
 
 			if ($this->RegistrationRedirect) {
 				if ($this->PostRegistrationTargetID) {
