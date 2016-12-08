@@ -827,8 +827,25 @@ class MemberProfilePage_Controller extends Page_Controller {
                 $email->send();
             }
         } elseif($this->EmailType == 'ValidationUnder16') {
-            $email = MemberConfirmationEmail::create($this, $member, $member->ParentEmail);
-            $email->send();
+            $data = new \stdClass();
+
+            $data->Email = $member->ParentEmail;
+
+            $data->Link  = Director::absoluteURL(Controller::join_links (
+                $this->Link('confirm'),
+                $member->ID,
+                "?key={$member->ValidationKey}"
+            ));
+
+            // MN: Send to magnews
+            /** @var \MySite\Service\MagNews $magNewsService */
+            $magNewsService = new \MySite\Service\MagNews();
+            $magnewsSent = $magNewsService->sendValidationLink($data);
+
+            if(!$magnewsSent) { //If magnews sent fail, send it ourself
+                $email = MemberConfirmationEmail::create($this, $member, $member->ParentEmail);
+                $email->send();
+            }
 		} elseif($this->EmailType != 'None') {
 			$email = MemberConfirmationEmail::create($this, $member);
 			$email->send();
