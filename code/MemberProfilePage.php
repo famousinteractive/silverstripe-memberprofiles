@@ -827,10 +827,7 @@ class MemberProfilePage_Controller extends Page_Controller {
                 $email->send();
             }
         } elseif($this->EmailType == 'ValidationUnder16') {
-            $data = new \stdClass();
-
-            $data->Email = $member->ParentEmail;
-
+            $data = $member;
             $data->Link  = Director::absoluteURL(Controller::join_links (
                 $this->Link('confirm'),
                 $member->ID,
