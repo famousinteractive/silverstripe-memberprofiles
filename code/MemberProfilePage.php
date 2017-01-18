@@ -514,6 +514,11 @@ class MemberProfilePage_Controller extends Page_Controller {
 	public function register($data, Form $form) {
 		if($member = $this->addMember($form)) {
 
+	    if(preg_match("/(\\d{2})\\/(\\d{2})\\/(\\d{4})$/", $data['DateOfBirth'])) {
+                $tmpDate = explode('/', $data['DateOfBirth']);
+                $data['DateOfBirth'] = $tmpDate[2].'-' . $tmpDate[1] . '-' . $tmpDate[0];
+            }
+			
             $birthDate = strtotime($data['DateOfBirth']);
             $min = strtotime('+16 years',$birthDate);
 
