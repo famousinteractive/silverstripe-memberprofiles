@@ -754,6 +754,7 @@ class MemberProfilePage_Controller extends Page_Controller {
 
 		$member->NeedsValidation = false;
 		$member->ValidationKey   = null;
+		$member->justValidated   = true;
 		$member->write();
 
 		$this->extend('onConfirm', $member);
