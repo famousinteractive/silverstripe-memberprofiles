@@ -746,10 +746,12 @@ class MemberProfilePage_Controller extends Page_Controller {
 			|| !$member = DataObject::get_by_id('Member', $id)
 		) {
 			$this->httpError(404);
+			die;
 		}
 
 		if($member->ValidationKey != $key || !$member->NeedsValidation) {
 			$this->httpError(403, 'You cannot validate this member.');
+			die;
 		}
 
 		$member->NeedsValidation = false;
