@@ -750,7 +750,7 @@ class MemberProfilePage_Controller extends Page_Controller {
 		}
 
 		if($member->ValidationKey != $key || !$member->NeedsValidation) {
-			$this->httpError(403, 'You cannot validate this member.');
+			$this->httpError(404, 'You cannot validate this member.');
 			die;
 		}
 
