@@ -745,13 +745,11 @@ class MemberProfilePage_Controller extends Page_Controller {
 			|| (!$id = $request->param('ID')) || (!$key = $request->getVar('key')) || !is_numeric($id)
 			|| !$member = DataObject::get_by_id('Member', $id)
 		) {
-			$this->httpError(404);
-			die;
+			die('Error ! You are already logged in or the link you follow is incorrect. !');
 		}
 
 		if($member->ValidationKey != $key || !$member->NeedsValidation) {
-			$this->httpError(404, 'You cannot validate this member.');
-			die;
+			die('Error ! They key is invalid or you account was already validated !');
 		}
 
 		$member->NeedsValidation = false;
