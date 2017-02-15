@@ -837,7 +837,7 @@ class MemberProfilePage_Controller extends Page_Controller {
             $data->Link  = Director::absoluteURL(Controller::join_links (
                 $this->Link('confirm'),
                 $member->ID,
-                "?key={$member->ValidationKey}"
+                "/?key={$member->ValidationKey}"
             ));
 
             // MN: Send to magnews
