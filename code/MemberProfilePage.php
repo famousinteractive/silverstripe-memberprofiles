@@ -749,7 +749,11 @@ class MemberProfilePage_Controller extends Page_Controller {
 		}
 
 		if($member->ValidationKey != $key || !$member->NeedsValidation) {
-			die('Error ! They key is invalid or you account was already validated !');
+			//die('Error ! They key is invalid or you account was already validated !');
+			return array (
+			'Title'   => $this->obj('ConfirmationTitle'),
+			'Content' => $this->obj('ConfirmationContent')
+			);
 		}
 
 		$member->NeedsValidation = false;
